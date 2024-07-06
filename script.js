@@ -966,7 +966,7 @@ fingerTypes.forEach(fingerType => {
     } else {
         const combinedStepsText = combinedSteps.join(' C ');
         const jointLabels = jointImpairments.map(imp => imp.joint).join(', ');
-        CVC = `CVC: ${combinedStepsText} (${jointLabels}) = ${totalImpairment} DT = ${hdImpairment} HD`;
+        CVC = `CVC: ${combinedStepsText} = ${totalImpairment} DT = ${hdImpairment} HD`;
     }
 
     form.querySelector('.cvc-result').textContent = CVC;
