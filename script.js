@@ -925,7 +925,19 @@ fingerTypes.forEach(fingerType => {
     const pipImpairment = addImpairments(pipImpairments);
     const mpImpairment = addImpairments(mpImpairments);
 
-    const totalImpairments = [dipImpairment, pipImpairment, mpImpairment].filter(imp => imp > 0);
+    // Create an array of objects with joint name and impairment value
+    const jointImpairments = [
+        { joint: 'DIP', value: dipImpairment },
+        { joint: 'PIP', value: pipImpairment },
+        { joint: 'MP', value: mpImpairment }
+    ].filter(imp => imp.value > 0);
+
+    // Sort the joint impairments from highest to lowest
+    jointImpairments.sort((a, b) => b.value - a.value);
+
+    // Extract just the impairment values for the combination function
+    const totalImpairments = jointImpairments.map(imp => imp.value);
+
     const { combined: totalImpairment, combinedSteps } = combinefingerImpairments(totalImpairments);
 
     form.querySelector('.DIPFlexionImpairment').textContent = dipImpairments[0] !== undefined ? dipImpairments[0] : 0;
@@ -949,11 +961,12 @@ fingerTypes.forEach(fingerType => {
     let CVC;
     if (totalImpairment === 0) {
         CVC = `CVC: 0 DT = 0 HD`;
-    } else if (totalImpairments.length === 1) {
+    } else if (jointImpairments.length === 1) {
         CVC = `CVC: ${totalImpairment} DT = ${hdImpairment} HD`;
     } else {
         const combinedStepsText = combinedSteps.join(' C ');
-        CVC = `CVC: ${combinedStepsText} = ${totalImpairment} DT = ${hdImpairment} HD`;
+        const jointLabels = jointImpairments.map(imp => imp.joint).join(', ');
+        CVC = `CVC: ${combinedStepsText} (${jointLabels}) = ${totalImpairment} DT = ${hdImpairment} HD`;
     }
 
     form.querySelector('.cvc-result').textContent = CVC;
