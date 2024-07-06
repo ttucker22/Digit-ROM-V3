@@ -925,20 +925,13 @@ fingerTypes.forEach(fingerType => {
     const pipImpairment = addImpairments(pipImpairments);
     const mpImpairment = addImpairments(mpImpairments);
 
-    // Create an array of objects with joint name and impairment value
-    const jointImpairments = [
-        { joint: 'DIP', value: dipImpairment },
-        { joint: 'PIP', value: pipImpairment },
-        { joint: 'MP', value: mpImpairment }
-    ].filter(imp => imp.value > 0);
+    // Create an array of impairment values
+    const jointImpairments = [dipImpairment, pipImpairment, mpImpairment].filter(imp => imp > 0);
 
     // Sort the joint impairments from highest to lowest
-    jointImpairments.sort((a, b) => b.value - a.value);
+    jointImpairments.sort((a, b) => b - a);
 
-    // Extract just the impairment values for the combination function
-    const totalImpairments = jointImpairments.map(imp => imp.value);
-
-    const { combined: totalImpairment, combinedSteps } = combinefingerImpairments(totalImpairments);
+    const { combined: totalImpairment, combinedSteps } = combinefingerImpairments(jointImpairments);
 
     form.querySelector('.DIPFlexionImpairment').textContent = dipImpairments[0] !== undefined ? dipImpairments[0] : 0;
     form.querySelector('.DIPExtensionImpairment').textContent = dipImpairments[1] !== undefined ? dipImpairments[1] : 0;
