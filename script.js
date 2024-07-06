@@ -874,9 +874,7 @@ function calculateThumbImpairment(value, dataArray, type) {
     }
     
     if (row) {
-        if (type === 'radialAbduction') {
-            return row.dtAbnormalMotion || 0;
-        } else if (type === 'cm') {
+        if (type === 'radialAbduction' || type === 'cm') {
             return row.dtAbnormalMotion || 0;
         } else if (type === 'ankylosis') {
             return row.dtAnkylosis || 0;
@@ -953,39 +951,35 @@ function calculateAllImpairments() {
         form.querySelector('.cvc-result').textContent = CVC;
     });
 
-// Calculate thumb impairment
-function calculateThumbImpairment() {
-    // IP Joint
+    // Calculate thumb impairment
     const ipFlexion = document.getElementById('ip-flexion').value;
     const ipExtension = document.getElementById('ip-extension').value;
     const ipAnkylosis = document.getElementById('ip-ankylosis').value;
-    
+
     let ipFlexionImp = calculateThumbImpairment(ipFlexion, IPData, 'flexion');
     let ipExtensionImp = calculateThumbImpairment(ipExtension, IPData, 'extension');
     let ipAnkylosisImp = calculateThumbImpairment(ipAnkylosis, IPData, 'ankylosis');
-    
+
     document.getElementById('ip-flexion-imp').textContent = ipFlexionImp;
     document.getElementById('ip-extension-imp').textContent = ipExtensionImp;
     document.getElementById('ip-ankylosis-imp').textContent = ipAnkylosisImp;
     let ipTotalImp = Math.max(ipFlexionImp + ipExtensionImp, ipAnkylosisImp);
     document.getElementById('ip-imp').textContent = ipTotalImp;
 
-    // MP Joint
     const mpFlexion = document.getElementById('mp-flexion').value;
     const mpExtension = document.getElementById('mp-extension').value;
     const mpAnkylosis = document.getElementById('mp-ankylosis').value;
-    
+
     let mpFlexionImp = calculateThumbImpairment(mpFlexion, THUMBMPData, 'flexion');
     let mpExtensionImp = calculateThumbImpairment(mpExtension, THUMBMPData, 'extension');
     let mpAnkylosisImp = calculateThumbImpairment(mpAnkylosis, THUMBMPData, 'ankylosis');
-    
+
     document.getElementById('mp-flexion-imp').textContent = mpFlexionImp;
     document.getElementById('mp-extension-imp').textContent = mpExtensionImp;
     document.getElementById('mp-ankylosis-imp').textContent = mpAnkylosisImp;
     let mpTotalImp = Math.max(mpFlexionImp + mpExtensionImp, mpAnkylosisImp);
     document.getElementById('mp-imp').textContent = mpTotalImp;
 
-    // CMC Joint - Radial Abduction
     const radialAbduction = document.getElementById('radial-abduction').value;
     const radialAbductionAnkylosis = document.getElementById('radial-abduction-ankylosis').value;
 
@@ -997,7 +991,6 @@ function calculateThumbImpairment() {
     let radialAbductionTotalImp = Math.max(radialAbductionImp, radialAbductionAnkylosisImp);
     document.getElementById('radial-abduction-imp').textContent = radialAbductionTotalImp;
 
-    // CMC Joint - Adduction
     const cmcAdduction = document.getElementById('cmc-adduction').value;
     const cmcAdductionAnkylosis = document.getElementById('cmc-adduction-ankylosis').value;
 
@@ -1009,7 +1002,6 @@ function calculateThumbImpairment() {
     let cmcAdductionTotalImp = Math.max(cmcAdductionImp, cmcAdductionAnkylosisImp);
     document.getElementById('cmc-adduction-imp').textContent = cmcAdductionTotalImp;
 
-    // CMC Joint - Opposition
     const opposition = document.getElementById('opposition').value;
     const oppositionAnkylosis = document.getElementById('opposition-ankylosis').value;
 
@@ -1021,45 +1013,29 @@ function calculateThumbImpairment() {
     let oppositionTotalImp = Math.max(oppositionImp, oppositionAnkylosisImp);
     document.getElementById('opposition-imp').textContent = oppositionTotalImp;
 
-    // Calculate total thumb impairment
     const totalThumbDigitImp = ipTotalImp + mpTotalImp + radialAbductionTotalImp + cmcAdductionTotalImp + oppositionTotalImp;
     const thumbHandImp = Math.round(totalThumbDigitImp * 0.4);
+    totalHDImpairment += thumbHandImp;
 
-    // Create an array of non-zero impairments
-    let thumbImpairments = [
-        { value: ipTotalImp, label: 'IP' },
-        { value: mpTotalImp, label: 'MP' },
-        { value: radialAbductionTotalImp, label: 'Radial Abduction' },
-        { value: cmcAdductionTotalImp, label: 'CMC Adduction' },
-        { value: oppositionTotalImp, label: 'Opposition' }
-    ].filter(imp => imp.value > 0);
+let thumbImpairments = [
+    { value: ipTotalImp, label: 'IP' },
+    { value: mpTotalImp, label: 'MP' },
+    { value: radialAbductionTotalImp, label: 'Radial Abduction' },
+    { value: cmcAdductionTotalImp, label: 'CMC Adduction' },
+    { value: oppositionTotalImp, label: 'Opposition' }
+].filter(imp => imp.value > 0);
 
-    // Sort impairments from highest to lowest
-    thumbImpairments.sort((a, b) => b.value - a.value);
+thumbImpairments.sort((a, b) => b.value - a.value);
 
-    // Create the addition string
-    let additionString = thumbImpairments.map(imp => imp.value).join(' + ');
+let additionString = thumbImpairments.map(imp => imp.value).join(' + ');
 
-    // Update the display
-    if (additionString) {
-        document.getElementById('total-imp').textContent = 
-            `ADD: ${additionString} = ${totalThumbDigitImp} DT = ${thumbHandImp} HD`;
-    } else {
-        document.getElementById('total-imp').textContent = 
-            `ADD: 0 DT = 0 HD`;
-    }
-
-    return thumbHandImp; // Return the thumb hand impairment for use in total hand impairment calculation
+if (additionString) {
+    document.getElementById('total-imp').textContent = 
+        `ADD: ${additionString} = ${totalThumbDigitImp} DT = ${thumbHandImp} HD`;
+} else {
+    document.getElementById('total-imp').textContent = 
+        `ADD: 0 DT = 0 HD`;
 }
-
-// Add event listeners to all thumb input fields
-const thumbInputs = document.querySelectorAll('#thumbCalculator input[type="number"]');
-thumbInputs.forEach(input => {
-    input.addEventListener('input', calculateThumbImpairment);
-});
-
-// Initial calculation
-calculateThumbImpairment();
 
     // Calculate total hand impairment
     const totalUEImpairment = Math.round(totalHDImpairment * 0.9);
