@@ -925,7 +925,7 @@ fingerTypes.forEach(fingerType => {
     const pipImpairment = addImpairments(pipImpairments);
     const mpImpairment = addImpairments(mpImpairments);
 
-    const totalImpairments = [dipImpairment, pipImpairment, mpImpairment].sort((a, b) => b - a);
+    const totalImpairments = [dipImpairment, pipImpairment, mpImpairment].filter(imp => imp > 0);
     const { combined: totalImpairment, combinedSteps } = combinefingerImpairments(totalImpairments);
 
     form.querySelector('.DIPFlexionImpairment').textContent = dipImpairments[0] !== undefined ? dipImpairments[0] : 0;
@@ -949,8 +949,10 @@ fingerTypes.forEach(fingerType => {
     let CVC;
     if (totalImpairment === 0) {
         CVC = `CVC: 0 DT = 0 HD`;
+    } else if (totalImpairments.length === 1) {
+        CVC = `CVC: ${totalImpairment} DT = ${hdImpairment} HD`;
     } else {
-        const combinedStepsText = combinedSteps.map(step => `${step}`).join(' C ');
+        const combinedStepsText = combinedSteps.join(' C ');
         CVC = `CVC: ${combinedStepsText} = ${totalImpairment} DT = ${hdImpairment} HD`;
     }
 
